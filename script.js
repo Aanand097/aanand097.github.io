@@ -41,6 +41,12 @@ function initMobileMenu() {
     });
 }
 
+
+function toggleCV() {
+    const cv = document.getElementById("cvPreview");
+    cv.classList.toggle("show");
+}
+
 function initStats() {
     const stats = document.querySelectorAll('.stat-number');
     
