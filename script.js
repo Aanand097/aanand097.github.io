@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initScrollSpy();
     initModal();
     initImageAnimation();
+    initCVFullscreenModal(); // NEW: Fullscreen CV popup
 });
 
 function initMobileMenu() {
@@ -41,10 +42,44 @@ function initMobileMenu() {
     });
 }
 
-
-function toggleCV() {
-    const cv = document.getElementById("cvPreview");
-    cv.classList.toggle("show");
+// NEW: Fullscreen CV Modal Functionality
+function initCVFullscreenModal() {
+    const viewBtn = document.getElementById('viewCvBtn');
+    const modal = document.getElementById('cvFullscreenModal');
+    const closeBtn = document.getElementById('cvCloseBtn');
+    
+    if (!viewBtn || !modal) return;
+    
+    // Open modal when View CV button is clicked
+    viewBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden'; // Prevent background scroll
+    });
+    
+    // Close modal with close button
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        });
+    }
+    
+    // Close modal when clicking on the backdrop
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    });
+    
+    // Close with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.style.display === 'flex') {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    });
 }
 
 function initStats() {
@@ -186,25 +221,21 @@ function initImageAnimation() {
     const container = document.getElementById('imageContainer');
     const track = document.getElementById('imageTrack');
     
-    if (!container) return;
+    if (!container || !window.gsap) return;
     
-    // Initial state - looking to the side
     gsap.set(track, { rotationY: 0 });
     
-    // Mouse move effect
     container.addEventListener('mousemove', function(e) {
         const rect = this.getBoundingClientRect();
-        const x = e.clientX - rect.left; // mouse x relative to container
-        const y = e.clientY - rect.top; // mouse y relative to container
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
         
-        // Calculate rotation based on mouse position
         const centerX = rect.width / 2;
         const centerY = rect.height / 2;
         
-        const rotateX = (y - centerY) / 20; // Max 10deg rotation
-        const rotateY = (x - centerX) / 15; // Max 15deg rotation
+        const rotateX = (y - centerY) / 20;
+        const rotateY = (x - centerX) / 15;
         
-        // Apply 3D rotation to container
         gsap.to(container, {
             rotateX: -rotateX,
             rotateY: rotateY,
@@ -212,7 +243,6 @@ function initImageAnimation() {
             ease: "power2.out"
         });
         
-        // Add parallax effect to track
         gsap.to(track, {
             x: (x - centerX) / 8,
             y: (y - centerY) / 8,
@@ -221,7 +251,6 @@ function initImageAnimation() {
         });
     });
     
-    // Reset on mouse leave
     container.addEventListener('mouseleave', function() {
         gsap.to(container, {
             rotateX: 0,
@@ -238,7 +267,6 @@ function initImageAnimation() {
         });
     });
     
-    // Add hover effect for the flip
     container.addEventListener('mouseenter', function() {
         gsap.to(this, {
             scale: 1.02,
